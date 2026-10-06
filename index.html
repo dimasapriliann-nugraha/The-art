@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Art of Chasing - Windows 98 Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        body {
+            background-color: #0d1117;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .code-background {
+            position: absolute;
+            top: -20px;
+            left: 10px;
+            width: 150vw;
+            height: 150vh;
+            color: rgba(255, 255, 255, 0.15);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            z-index: 0;
+            pointer-events: none;
+            white-space: pre-wrap;
+            user-select: none;
+        }
+
+        .code-background .keyword { color: rgba(86, 156, 214, 0.2); }
+        .code-background .string { color: rgba(206, 145, 120, 0.2); }
+        .code-background .function { color: rgba(220, 220, 170, 0.2); }
+
+        .win98-window {
+            background-color: #c0c0c0;
+            border-top: 2px solid #ffffff;
+            border-left: 2px solid #ffffff;
+            border-right: 2px solid #000000;
+            border-bottom: 2px solid #000000;
+            box-shadow: inset 1px 1px 0px 0px #dfdfdf, inset -1px -1px 0px 0px #808080;
+            width: 360px;
+            z-index: 20;
+            font-family: 'MS Sans Serif', 'Segoe UI', sans-serif;
+        }
+
+        .win98-titlebar {
+            background: linear-gradient(90deg, #000080, #1084d0);
+            color: white;
+            padding: 2px 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 12px;
+            margin: 2px;
+        }
+
+        .win98-close {
+            background: #c0c0c0;
+            color: #000;
+            border-top: 1px solid #ffffff;
+            border-left: 1px solid #ffffff;
+            border-right: 1px solid #000000;
+            border-bottom: 1px solid #000000;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 1px 5px;
+            cursor: pointer;
+        }
+        
+        .win98-close:active {
+            border-top: 1px solid #000000;
+            border-left: 1px solid #000000;
+            border-right: 1px solid #ffffff;
+            border-bottom: 1px solid #ffffff;
+            padding: 2px 4px 0px 6px;
+        }
+
+        .win98-button {
+            background: #c0c0c0;
+            border-top: 2px solid #ffffff;
+            border-left: 2px solid #ffffff;
+            border-right: 2px solid #000000;
+            border-bottom: 2px solid #000000;
+            box-shadow: inset 1px 1px 0px 0px #dfdfdf, inset -1px -1px 0px 0px #808080;
+            padding: 4px 20px;
+            font-size: 12px;
+            cursor: pointer;
+            color: black;
+            outline: 1px solid transparent;
+        }
+
+        .win98-button:focus {
+            outline: 1px dotted #000000;
+            outline-offset: -4px;
+        }
+
+        .win98-button:active {
+            border-top: 2px solid #000000;
+            border-left: 2px solid #000000;
+            border-right: 2px solid #ffffff;
+            border-bottom: 2px solid #ffffff;
+            box-shadow: inset 1px 1px 0px 0px #808080, inset -1px -1px 0px 0px #dfdfdf;
+            padding: 5px 19px 3px 21px;
+        }
+
+        /* Animasi untuk ending lirik */
+        @keyframes fadeOutElegant {
+            0% { opacity: 1; filter: blur(0px); transform: scale(1); }
+            100% { opacity: 0; filter: blur(2px); transform: scale(0.95); }
+        }
+        
+        .lyric-end-anim {
+            animation: fadeOutElegant 2.5s forwards ease-in-out;
+        }
+    </style>
+</head>
+<body class="relative h-screen w-screen flex items-center justify-center">
+
+    <audio id="song" src="the-art-of-chasing.mp3" preload="auto"></audio>
+
+    <div class="code-background" id="bg-code"></div>
+
+    <!-- Overlay Start -->
+    <div id="start-overlay" class="absolute inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm">
+        <div class="text-center win98-window p-1">
+            <div class="win98-titlebar">
+                <span>System Message</span>
+            </div>
+            <div class="p-6 bg-[#c0c0c0]">
+                <h1 class="text-black text-lg font-bold mb-4">the art of chasing</h1>
+                <p class="text-black mb-6 max-w-md text-sm mx-auto">ini web buatan bang Raha, Tekan tombol run di bawah ini.</p>
+                <button id="start-btn" class="win98-button font-bold">Run</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="dialog-container" class="hidden flex-col items-center z-20">
+        <div class="win98-window flex flex-col">
+            <!-- Header Dialog -->
+            <div class="win98-titlebar">
+                <span>the art of chasing</span>
+                <button class="win98-close">X</button>
+            </div>
+            
+            <!-- Isi Dialog -->
+            <div class="p-6 flex flex-col items-center justify-between" style="min-height: 160px; background-color: #c0c0c0;">
+                <div class="flex items-center w-full justify-center mb-6 mt-4">
+                    <!-- Penampil Animated Emoji -->
+                    <img id="emoji-display" class="w-14 h-14 mr-4 flex-shrink-0 object-contain drop-shadow-md" src="" alt="emoji" style="display: none;" />
+                    
+                    <!-- Penampil Lirik -->
+                    <div id="lyric-display" class="text-black font-medium text-[16px] leading-relaxed">
+                        ...
+                    </div>
+                </div>
+                
+                <!-- Tombol -->
+                <button id="ok-btn" class="win98-button mt-4">Copyright by Raha 2026</button>
+                <button id="replay-btn" class="win98-button mt-4 font-bold" style="display: none;">Play Ulang</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Copyright -->
+    <div class="absolute bottom-6 w-full text-center z-10 pointer-events-none">
+        <span class="text-white/40 font-['MS_Sans_Serif'] text-[12px] tracking-widest" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">
+            Copyright by Raha 2026
+        </span>
+    </div>
+
+    <script>
+        // Membuat latar belakang kode editor palsu
+        const bgCodeContainer = document.getElementById('bg-code');
+        const dummyCode = `
+<span class="keyword">function</span> <span class="function">playAnimation</span>(songName, duration) {
+    <span class="keyword">const</span> state = { playing: true, emotion: <span class="string">"chasing"</span> };
+    <span class="keyword">let</span> player = AudioPlayer.<span class="function">load</span>(songName);
+    
+    <span class="keyword">while</span> (player.currentTime < duration) {
+        <span class="function">syncLyrics</span>(player.currentTime);
+        <span class="function">updateEmoji</span>(emotion);
+    }
+    <span class="keyword">return</span> <span class="keyword">false</span>;
+}
+<span class="keyword">for</span> (<span class="keyword">let</span> i = 0; i < 50; i++) {
+    <span class="function">playAnimation</span>(<span class="string">"the art of chasing"</span>, 180);
+}
+        `;
+        bgCodeContainer.innerHTML = dummyCode.repeat(15);
+
+        // Data Lirik dengan animasi emoji WebP dari Noto Emoji
+        const lyricsData = [
+            { time: 0.0, text: "Of getting away from me", emoji: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f636_200d_1f32b_fe0f/512.webp" },
+            { time: 3.0, text: "'Cause I", emoji: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f97a/512.webp" },
+            { time: 6.0, text: "wanna run away to you", emoji: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f62e_200d_1f4a8/512.webp" },
+            { time: 9.0, text: "And i want to", emoji: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f914/512.webp" },
+            { time: 11.0, text: "Understand", emoji: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f9d0/512.webp" },
+            { time: 13.0, text: "The art of chasing you", emoji: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f975/512.webp" },
+            { time: 16.0, text: "Cause I", emoji: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f97a/512.webp" },
+            { time: 19.0, text: "Wanna run away to you", emoji: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f62e_200d_1f4a8/512.webp" },
+            { time: 22.0, text: "and i want to", emoji: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f914/512.webp" },
+            { time: 24.0, text: "understand", emoji: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f9d0/512.webp" },
+            { time: 26.0, text: "The art of chasing you", emoji: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f975/512.webp" }
+        ];
+
+        const audio = document.getElementById('song');
+        const startBtn = document.getElementById('start-btn');
+        const overlay = document.getElementById('start-overlay');
+        const dialog = document.getElementById('dialog-container');
+        const emojiEl = document.getElementById('emoji-display');
+        const lyricEl = document.getElementById('lyric-display');
+        
+        const okBtn = document.getElementById('ok-btn');
+        const replayBtn = document.getElementById('replay-btn');
+
+        let useFallbackTimer = false;
+        let startTime = 0;
+        let animationFrameId;
+        let isEnding = false;
+
+        // Fallback jika audio gagal dimuat
+        audio.addEventListener('error', () => {
+            console.log("Audio tidak ditemukan. Menggunakan sistem timer fallback.");
+            useFallbackTimer = true;
+        });
+
+        startBtn.addEventListener('click', () => {
+            overlay.style.display = 'none';
+            dialog.classList.remove('hidden');
+            dialog.classList.add('flex');
+
+            startPlayback();
+        });
+
+        replayBtn.addEventListener('click', () => {
+            // Reset state untuk pemutaran ulang
+            isEnding = false;
+            lyricEl.classList.remove('lyric-end-anim');
+            emojiEl.classList.remove('lyric-end-anim');
+            
+            replayBtn.style.display = 'none';
+            okBtn.style.display = 'block';
+            
+            startPlayback();
+        });
+
+        function startPlayback() {
+            if (!useFallbackTimer) {
+                audio.currentTime = 0;
+                audio.play().catch(error => {
+                    console.log("Gagal memutar audio, berpindah ke timer otomatis.");
+                    useFallbackTimer = true;
+                    startTime = performance.now();
+                });
+            } else {
+                startTime = performance.now();
+            }
+
+            emojiEl.style.display = 'block';
+            updateLyrics();
+        }
+
+        function updateLyrics() {
+            let currentTime = 0;
+
+            if (useFallbackTimer) {
+                currentTime = (performance.now() - startTime) / 1000;
+            } else {
+                currentTime = audio.currentTime;
+            }
+
+            let currentLyric = lyricsData[0];
+            for (let i = 0; i < lyricsData.length; i++) {
+                if (currentTime >= lyricsData[i].time) {
+                    currentLyric = lyricsData[i];
+                } else {
+                    break; 
+                }
+            }
+
+            // Update DOM
+            if (emojiEl.src !== currentLyric.emoji) {
+                emojiEl.src = currentLyric.emoji;
+                emojiEl.style.transform = 'scale(0.8)';
+                setTimeout(() => {
+                    emojiEl.style.transform = 'scale(1)';
+                    emojiEl.style.transition = 'transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                }, 10);
+            }
+            
+            if (lyricEl.innerText !== currentLyric.text) {
+                lyricEl.innerText = currentLyric.text;
+            }
+
+            // Memicu animasi fade-out saat mencapai akhir lirik
+            const lastLyricTime = lyricsData[lyricsData.length - 1].time;
+            
+            if (currentTime > lastLyricTime + 3) {
+                if (!isEnding) {
+                    isEnding = true;
+                    lyricEl.classList.add('lyric-end-anim');
+                    emojiEl.classList.add('lyric-end-anim');
+                }
+            }
+
+            // Menghentikan loop dan memunculkan tombol Play Ulang
+            if (currentTime > lastLyricTime + 5.5) {
+                cancelAnimationFrame(animationFrameId);
+                
+                okBtn.style.display = 'none';
+                replayBtn.style.display = 'block';
+                return; // Stop animation loop
+            }
+
+            animationFrameId = requestAnimationFrame(updateLyrics);
+        }
+    </script>
+</body>
+</html>
